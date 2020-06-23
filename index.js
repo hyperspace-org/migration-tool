@@ -19,10 +19,10 @@ const MIGRATION_DIR = p.join(DAEMON_STORAGE_DIR, '.migration')
 
 module.exports = async function migrate () {
   // If the hyperdrive-daemon was never installed, abort.
-  if (await noDaemonInstallation()) return
+  if (!(await exists(DAEMON_STORAGE_DIR))) return
 
   // If the hyperspace storage directory has already been created, abort.
-  if (await alreadyMigrated()) return
+  if (await exists(HYPERSPACE_STORAGE_DIR)) return
 
   const rootDb = level(DAEMON_DB_PATH)
   const drivesDb = sub(rootDb, 'drives')
@@ -30,7 +30,9 @@ module.exports = async function migrate () {
   await networkDb.open()
 
   // Move the old storage directory into the migration directory.
-  await migrateCores()
+  if (!(await exists(MIGRATION_DIR))) {
+    await migrateCores()
+  }
 
   // Start the Hyperspace server on the migration directory.
   const server = new HyperspaceServer({
@@ -53,7 +55,6 @@ module.exports = async function migrate () {
   // Shut down the Hyperspace server.
   await server.close()
   console.log('Server closed.')
-
 }
 
 async function migrateDatabase (client, db) {
@@ -74,20 +75,11 @@ async function migrateCores () {
   return fs.rename(DAEMON_CORES_PATH, MIGRATION_DIR)
 }
 
-async function noDaemonInstallation () {
+async function exists (path) {
   try {
-    await fs.access(DAEMON_DB_PATH)
-    return false
+    await fs.access(path)
+    return true
   } catch (err) {
-    return true
-  }
-}
-
-async function alreadyMigrated () {
-  try {
-    await fs.access(HYPERSPACE_STORAGE_DIR)
-    return true
-  }  catch (err) {
     return false
   }
 }
