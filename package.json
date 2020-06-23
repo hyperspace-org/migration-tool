@@ -1,0 +1,35 @@
+{
+  "name": "hyperspace-migration-tool",
+  "version": "1.0.0",
+  "description": "A tool for migrating from hyperdrive-daemon to hyperspace.",
+  "main": "index.js",
+  "bin": {
+    "hyperspace-migration-tool": "bin.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewosh/hyperspace-migration-tool.git"
+  },
+  "keywords": [
+    "hyperspace",
+    "hyperdrive",
+    "daemon",
+    "migration"
+  ],
+  "author": "Andrew Osheroff <andrewosh@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andrewosh/hyperspace-migration-tool/issues"
+  },
+  "homepage": "https://github.com/andrewosh/hyperspace-migration-tool#readme",
+  "dependencies": {
+    "@hyperspace/client": "^1.0.0",
+    "hyperspace": "^3.0.0",
+    "level": "^6.0.1",
+    "stream-collector": "^1.0.1",
+    "subleveldown": "^5.0.0"
+  }
+}
