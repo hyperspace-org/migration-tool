@@ -4,11 +4,15 @@ const fs = require('fs').promises
 
 const level = require('level')
 const sub = require('subleveldown')
+const bjson = require('buffer-json-encoding')
 const collectStream = require('stream-collector')
 const { Client: HyperspaceClient, Server: HyperspaceServer } = require('hyperspace')
 
 const HYPERSPACE_ROOT = p.join(os.homedir(), '.hyperspace')
 const HYPERSPACE_STORAGE_DIR = p.join(HYPERSPACE_ROOT, 'storage')
+const HYPERSPACE_CONFIG_DIR = p.join(HYPERSPACE_ROOT, 'config')
+
+const FUSE_CONFIG_PATH = p.join(HYPERSPACE_CONFIG_DIR, 'fuse.json')
 
 const DAEMON_ROOT = p.join(os.homedir(), '.hyperdrive')
 const DAEMON_STORAGE_DIR = p.join(DAEMON_ROOT, 'storage')
@@ -25,9 +29,11 @@ module.exports = async function migrate () {
   if (await exists(HYPERSPACE_STORAGE_DIR)) return
 
   const rootDb = level(DAEMON_DB_PATH)
+  const fuseDb = sub(rootDb, 'fuse', { valueEncoding: bjson })
   const drivesDb = sub(rootDb, 'drives')
   const networkDb = sub(drivesDb, 'seeding', { valueEncoding: 'json' })
   await networkDb.open()
+  await fuseDb.open()
 
   // Move the old storage directory into the migration directory.
   if (!(await exists(MIGRATION_DIR))) {
@@ -43,32 +49,43 @@ module.exports = async function migrate () {
   await client.ready()
 
   // Migrate the network configurations in the old database into the Hyperspace storage trie.
-  await migrateDatabase(client, networkDb)
-  console.log('Done migrating database')
+  await migrateNetworkConfigs(client, networkDb)
+
+  // Migrate the root FUSE drives into a @hyperspace/hyperdrive config file.
+  await migrateRootDrive(fuseDb)
 
   // Atomically rename the migration directory to .hyperspace.
   await fs.mkdir(HYPERSPACE_ROOT, { recursive: true })
   await fs.rename(MIGRATION_DIR, HYPERSPACE_STORAGE_DIR)
-
-  console.log('Done with migration. Shutting down Hyperspace server...')
 
   // Shut down the Hyperspace server.
   await server.close()
   console.log('Server closed.')
 }
 
-async function migrateDatabase (client, db) {
+async function migrateNetworkConfigs (client, db) {
   const allNetworkConfigs = await dbCollect(db)
   for (const { key: discoveryKey, value: networkOpts } of allNetworkConfigs) {
     if (!networkOpts) continue
     const opts = networkOpts.opts
-    console.log('Migrating discovery key:', discoveryKey)
     await client.network.configure(Buffer.from(discoveryKey, 'hex'), {
       announce: !!opts.announce,
       lookup: !!opts.lookup,
       remember: true
     })
   }
+}
+
+async function migrateRootDrive (db) {
+  const rootDriveMetadata = await dbGet(db, 'root-drive')
+  if (!rootDriveMetadata) return null
+  var key = rootDriveMetadata.opts && rootDriveMetadata.opts.key
+  if (Buffer.isBuffer(key)) key = key.toString('hex')
+  await fs.mkdir(HYPERSPACE_CONFIG_DIR, { recursive: true })
+  return fs.writeFile(FUSE_CONFIG_PATH, JSON.stringify({
+    rootDriveKey: key,
+    mnt: p.join(os.homedir(), 'Hyperdrive')
+  }, null, 2))
 }
 
 async function migrateCores () {
@@ -91,4 +108,13 @@ function dbCollect (index, opts) {
       return resolve(list)
     })
   })
+}
+
+async function dbGet (db, idx) {
+  try {
+    return await db.get(idx)
+  } catch (err) {
+    if (err && !err.notFound) throw err
+    return null
+  }
 }
