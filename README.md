@@ -4,7 +4,7 @@ A tool for migrating from the [Hyperdrive daemon](https://github.com/hypercore-p
 This tool does a few things:
 1. It moves all your stored hypercores from `~/.hyperdrive/storage/cores` to `~/.hyperspace/storage`.
 2. It copies all network configurations (the cores you're seeding) from the daemon's Level instance (at `~/.hyperdrive/storage/db`) into Hyperspace's config trie.
-3. It copies your FUSE root drive into a separate config file that will be loaded by [`@hyperspace/hyperdrive`](https://github.com/hyperspace-org/hyperspace-hyperdrive-service).
+3. It copies your FUSE root drive key into a separate config file that will be loaded by [`@hyperspace/hyperdrive`](https://github.com/hyperspace-org/hyperspace-hyperdrive-service).
 
 ### Installation
 ```
