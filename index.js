@@ -60,7 +60,6 @@ module.exports = async function migrate () {
 
   // Shut down the Hyperspace server.
   await server.close()
-  console.log('Server closed.')
 }
 
 async function migrateNetworkConfigs (client, db) {
