@@ -12,7 +12,9 @@ npm i hyperspace-migration-tool
 ```
 
 ### Usage
-This migration tool is currently bundled with Hyperspace. After a few months or so, we'll be removing it. If you'd like to run the tool manually yourself, you can install the module globally and use the included `bin.js` CLI tool.
+This migration tool is currently bundled with Hyperspace -- it's run by default when Hyperspace is first started, so you shouldn't have to run this manually. After a few months or so, we'll be removing it. 
+
+If you'd like to do the migration manually anyway, you can install this module globally (`npm i hyperspace-migration-tool -g`) and use the included `bin.js` CLI tool.
 
 #### As a module
 The tool exports one function, `migrate`. `await migrate()` will perform the migration.
