@@ -1,4 +1,4 @@
-# hyperspace-migration-tool
+# `@hyperspace/migration-tool`
 A tool for migrating from the [Hyperdrive daemon](https://github.com/hypercore-protocol/hyperdrive-daemon) to [Hyperspace](https://github.com/hyperspace-org/hyperspace).
 
 This tool does a few things:
