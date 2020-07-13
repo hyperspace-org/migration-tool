@@ -17,7 +17,7 @@ This migration tool is currently bundled with Hyperspace -- it's run by default 
 If you'd like to do the migration manually anyway, you can install this module globally (`npm i @hyperspace/migration-tool -g`) and use the included `bin.js` CLI tool.
 
 #### As a module
-The tool exports one function, `migrate`. `await migrate()` will perform the migration.
+The tool exports two functions, `migrate` and `isMigrated`. `await migrate()` will perform the migration.
 
 ### From the CLI
 `./bin.js` will perform the migration. It assumes that your Hyperdrive daemon storage is stored in `~/.hyperdrive` and that your Hyperspace storage directory is going to be `~/.hyperspace`.
