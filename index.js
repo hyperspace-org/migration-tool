@@ -21,12 +21,8 @@ const DAEMON_CORES_PATH = p.join(DAEMON_STORAGE_DIR, 'cores')
 
 const MIGRATION_DIR = p.join(DAEMON_STORAGE_DIR, '.migration')
 
-module.exports = async function migrate () {
-  // If the hyperdrive-daemon was never installed, abort.
-  if (!(await exists(DAEMON_STORAGE_DIR))) return
-
-  // If the hyperspace storage directory has already been created, abort.
-  if (await exists(HYPERSPACE_STORAGE_DIR)) return
+async function migrate () {
+  if (await isMigrated()) return
 
   const rootDb = level(DAEMON_DB_PATH)
   const fuseDb = sub(rootDb, 'fuse', { valueEncoding: bjson })
@@ -60,6 +56,14 @@ module.exports = async function migrate () {
 
   // Shut down the Hyperspace server.
   await server.close()
+}
+
+async function isMigrated () {
+  // If the hyperdrive-daemon was never installed, abort.
+  if (!(await exists(DAEMON_STORAGE_DIR))) return true
+  // If the hyperspace storage directory has already been created, abort.
+  if (await exists(HYPERSPACE_STORAGE_DIR)) return true
+  return false
 }
 
 async function migrateNetworkConfigs (client, db) {
@@ -116,4 +120,9 @@ async function dbGet (db, idx) {
     if (err && !err.notFound) throw err
     return null
   }
+}
+
+module.exports = {
+  migrate,
+  isMigrated
 }

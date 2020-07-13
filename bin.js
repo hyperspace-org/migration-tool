@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const migrate = require('.')
+const { migrate } = require('.')
 
 ;(async () => {
   console.log('Migrating from the Hyperdrive daemon to Hyperspace...')
