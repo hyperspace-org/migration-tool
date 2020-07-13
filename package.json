@@ -1,5 +1,5 @@
 {
-  "name": "hyperspace-migration-tool",
+  "name": "@hyperspace/migration-tool",
   "version": "1.0.0",
   "description": "A tool for migrating from hyperdrive-daemon to hyperspace.",
   "main": "index.js",
