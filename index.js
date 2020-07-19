@@ -50,12 +50,12 @@ async function migrate () {
   // Migrate the root FUSE drives into a @hyperspace/hyperdrive config file.
   await migrateRootDrive(fuseDb)
 
+  // Shut down the Hyperspace server.
+  await server.close()
+
   // Atomically rename the migration directory to .hyperspace.
   await fs.mkdir(HYPERSPACE_ROOT, { recursive: true })
   await fs.rename(MIGRATION_DIR, HYPERSPACE_STORAGE_DIR)
-
-  // Shut down the Hyperspace server.
-  await server.close()
 }
 
 async function isMigrated () {
