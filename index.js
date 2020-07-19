@@ -38,7 +38,8 @@ async function migrate () {
 
   // Start the Hyperspace server on the migration directory.
   const server = new HyperspaceServer({
-    storage: MIGRATION_DIR
+    storage: MIGRATION_DIR,
+    noAnnounce: true
   })
   await server.open()
   const client = new HyperspaceClient()
