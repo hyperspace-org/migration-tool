@@ -61,11 +61,13 @@ async function migrate (opts = {}) {
   }
 }
 
-async function isMigrated () {
+async function isMigrated (opts = {}) {
   // If the hyperdrive-daemon was never installed, abort.
   if (!(await exists(DAEMON_STORAGE_DIR))) return true
   // If the hyperspace storage directory has already been created, abort.
   if (await exists(HYPERSPACE_STORAGE_DIR)) return true
+  // If the hyperspace config directory has been created, and noMove is true, abort.
+  if (opts.noMove && (await exists(HYPERSPACE_CONFIG_DIR))) return true
   return false
 }
 
