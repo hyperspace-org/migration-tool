@@ -21,7 +21,7 @@ const DAEMON_CORES_PATH = p.join(DAEMON_STORAGE_DIR, 'cores')
 
 const MIGRATION_DIR = p.join(DAEMON_STORAGE_DIR, '.migration')
 
-async function migrate () {
+async function migrate (opts = {}) {
   if (await isMigrated()) return
 
   const rootDb = level(DAEMON_DB_PATH)
@@ -32,13 +32,13 @@ async function migrate () {
   await fuseDb.open()
 
   // Move the old storage directory into the migration directory.
-  if (!(await exists(MIGRATION_DIR))) {
+  if (!opts.noMove && !(await exists(MIGRATION_DIR))) {
     await migrateCores()
   }
 
   // Start the Hyperspace server on the migration directory.
   const server = new HyperspaceServer({
-    storage: MIGRATION_DIR,
+    storage: opts.noMove ? DAEMON_CORES_PATH : MIGRATION_DIR,
     noAnnounce: true
   })
   await server.open()
@@ -55,8 +55,10 @@ async function migrate () {
   await server.close()
 
   // Atomically rename the migration directory to .hyperspace.
-  await fs.mkdir(HYPERSPACE_ROOT, { recursive: true })
-  await fs.rename(MIGRATION_DIR, HYPERSPACE_STORAGE_DIR)
+  if (!opts.noMove) {
+    await fs.mkdir(HYPERSPACE_ROOT, { recursive: true })
+    await fs.rename(MIGRATION_DIR, HYPERSPACE_STORAGE_DIR)
+  }
 }
 
 async function isMigrated () {
