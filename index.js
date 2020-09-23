@@ -74,7 +74,7 @@ async function isMigrated (opts = {}) {
 async function migrateNetworkConfigs (client, db) {
   const allNetworkConfigs = await dbCollect(db)
   for (const { key: discoveryKey, value: networkOpts } of allNetworkConfigs) {
-    if (!networkOpts) continue
+    if (!networkOpts || !networkOpts.opts) continue
     const opts = networkOpts.opts
     await client.network.configure(Buffer.from(discoveryKey, 'hex'), {
       announce: !!opts.announce,
